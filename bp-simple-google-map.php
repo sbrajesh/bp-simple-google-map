@@ -5,7 +5,7 @@
  * Plugin URI: http://buddydev.com/plugins/bp-simple-google-map/
  * Author: Brajesh Singh
  * Author URI: http://buddydev.com/members/sbrajesh/
- * Version:1.0
+ * Version:1.0.1
  * Description: The current version allows adding static google map to buddypress Groups. Based on the community feedback,In future version, we may extend it to user maps too.
  */
 
@@ -93,7 +93,7 @@ return "<img src='".$url."'alt='".esc_attr($loc)."' />";
 }
 
 function get_admin_settings(){
-    $default=array('map_type'=>'hybrid','map_zoom_level'=>6,'map_height'=>640,'map_width'=>640);
+    $default=array('map_type'=>'roadmap','map_zoom_level'=>6,'map_height'=>640,'map_width'=>640);
     $settings= get_site_option("bpgsmap_settings", $default);
     return maybe_unserialize($settings);
 }
@@ -154,7 +154,7 @@ function update($new_instance, $old_instance) {
 }
 
 function form($instance){
-      $instance = wp_parse_args( (array) $instance, array( 'title' => __('Google Map','bpsgmap'), 'map_height' =>200,'map_width'=>190,'map_zoom_level'=>6,'map_type'=>'hybrid' ) );
+      $instance = wp_parse_args( (array) $instance, array( 'title' => __('Google Map','bpsgmap'), 'map_height' =>200,'map_width'=>190,'map_zoom_level'=>6,'map_type'=>'roadmap' ) );
       $title = strip_tags( $instance['title'] );
       $map_width = absint($instance['map_width']) ;//map_width
       $map_height = absint($instance['map_height']) ;//map_height
@@ -205,7 +205,7 @@ function bpsimplegoolemap_register_widgets(){
     add_action('widgets_init', create_function('', 'return register_widget("BpSimpleGoogleMapWidget");') );
 }
 //register the widget
-add_action( 'bp_init', 'bpsimplegoolemap_register_widgets' );
+add_action( 'bp_loaded', 'bpsimplegoolemap_register_widgets' );
 
 //always implement as singleton if you add some actions in constructor
 class BPSimpleGoogleMapGroupHelper{
