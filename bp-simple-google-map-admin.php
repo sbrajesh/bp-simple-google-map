@@ -1,82 +1,81 @@
 <?php
 
-class BPSimpleGoogleMapAdmin {
-	function __construct() {
-		$this->title      = __( 'BP Simple Google Map', 'bpsgmap' );
-		$this->menu_title = __( 'BP Simple Google Map', 'bpsgmap' );
-		$this->capability = "remove_users";
-		$this->menu_slug  = "bpsgmap-admin";
+class BP_Simple_Google_Map_Admin {
 
-		//add_action(is_multisite()?"network_admin_menu":"admin_menu",array(&$this,"add_menu"));
-		if ( is_multisite() ) {
-			add_action( "network_admin_menu", array( &$this, "add_menu" ) );
-		} else {
-			add_action( "admin_menu", array( &$this, "add_menu" ) );
+	private $errors = null;
+	private $message  = null;
+
+	public function __construct() {
+		add_action( 'admin_menu', array( $this, 'add_menu' ) );
+	}
+
+	public function add_menu() {
+
+		if ( is_multisite() && ! bp_is_root_blog() ) {
+			return ;
 		}
 
-	}
-
-	function BPSimpleGoogleMapAdmin() {
-		$this->__construct();
-	}
-
-	function add_menu() {
-
-		add_submenu_page( 'bp-general-settings', $this->title, $this->menu_title, $this->capability, $this->menu_slug, array(
-			&$this,
-			"form"
+		add_options_page( __( 'BP Simple Google Map', 'bp-simple-google-map' ), __( 'BP Simple Google Map', 'bp-simple-google-map' ), 'remove_users', 'bpsgmap-admin', array(
+			$this,
+			'form'
 		) );
-
-
 	}
 
-	function update() {
-
+	/**
+	 * Save
+	 */
+	public function update() {
 
 		if ( ! empty( $_POST['bpsgmap_save'] ) ) {
 			//validate nonce
-			if ( ! wp_verify_nonce( $_POST['_wpnonce'], "bpsgmap" ) ) {
-				die( __( 'Security check failed', 'bpsgmap' ) );
+			if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'bp-simple-google-map' ) ) {
+				die( __( 'Security check failed', 'bp-simple-google-map' ) );
 			}
 
-			$settings = BPSimpleGoogleMap::get_admin_settings();//returns an ary of key val
+			$settings = bpsgm_get_admin_settings();//returns an ary of key val
 			//let us process it
 			$map_type = $_POST['map_type'];
+
 			if ( $map_type && in_array( $map_type, array( 'roadmap', 'satellite', 'terrain', 'hybrid' ) ) ) {
 				$settings['map_type'] = $_POST['map_type'];
 			}
 
+			$settings['map_key'] = isset( $_POST['map_key'] ) ? trim( $_POST['map_key'] ) : '';
+
 			$map_zoom_level = $_POST['map_zoom_level'];
+
 			if ( $map_zoom_level && ( $map_zoom_level >= 0 && $map_zoom_level <= 21 ) ) {
 				$settings['map_zoom_level'] = $map_zoom_level;
 			}
 
 			$map_height = $_POST['map_height'];
+
 			if ( $map_height && ( $map_height >= 50 && $map_height <= 640 ) ) {
 				$settings['map_height'] = $map_height;
 			}
 
-
 			$map_width = $_POST['map_width'];
+
 			if ( $map_width && ( $map_width >= 50 && $map_width <= 640 ) ) {
 				$settings['map_width'] = $map_width;
 			}
 
-			update_site_option( "bpgsmap_settings", $settings );
-			$this->message = __( "Updated", 'bpsgmap' );
+			update_site_option( 'bpgsmap_settings', $settings );
+			$this->message = __( 'Updated', 'bp-simple-google-map' );
 		}
-
-
 	}
 
+	public function form() {
 
-	function form() {
 		$this->update();
-		$settings = BPSimpleGoogleMap::get_admin_settings();
+		$settings = bpsgm_get_admin_settings();
+
 		extract( $settings );
+
+		$map_key = isset( $settings['map_key'] ) ? $settings['map_key'] : '';//backward compat to avoid notices
 		?>
 		<div class='wrap'>
-			<h2><?php echo $this->title; ?></h2>
+			<h1><?php _e( 'BP Simple Google Map', 'bp-simple-google-map' ); ?></h1>
 			<?php if ( $this->errors || $this->message ): ?>
 				<div class="updated fade" id="message"><p>
 						<?php echo $this->errors;
@@ -92,23 +91,21 @@ class BPSimpleGoogleMapAdmin {
 						<th scope='row'><?php _e( 'Default Map Type', 'bpsgmap' ); ?></th>
 						<td>
 							<select name='map_type'>
-								<option value='roadmap' <?php if ( $map_type == 'roadmap' ) {
-									echo 'selected="selected"';
-								} ?>><?php _e( 'Roadmap', 'bpsgmap' ); ?></option>
-								<option value='satellite' <?php if ( $map_type == 'satellite' ) {
-									echo 'selected="selected"';
-								} ?>><?php _e( 'Satellite', 'bpsgmap' ); ?></option>
-								<option value='terrain' <?php if ( $map_type == 'terrain' ) {
-									echo 'selected="selected"';
-								} ?>><?php _e( 'Terrain', 'bpsgmap' ); ?></option>
-								<option value='hybrid' <?php if ( $map_type == 'hybrid' ) {
-									echo 'selected="selected"';
-								} ?>><?php _e( 'Hybrid', 'bpsgmap' ); ?></option>
-
+								<option value='roadmap' <?php selected( $map_type, 'roadmap' ); ?>><?php _e( 'Roadmap', 'bp-simple-google-map' ); ?></option>
+								<option value='satellite' <?php selected( $map_type, 'satellite' ); ?>><?php _e( 'Satellite', 'bp-simple-google-map' ); ?></option>
+								<option value='terrain' <?php selected( $map_type, 'terrain' ); ?>><?php _e( 'Terrain', 'bp-simple-google-map' ); ?></option>
+								<option value='hybrid' <?php selected ( $map_type, 'hybrid' ); ?>><?php _e( 'Hybrid', 'bp-simple-google-map' ); ?></option>
 
 							</select>
 						</td>
 					</tr>
+					<tr valign='top'>
+						<th scope='row'><?php _e( 'Map Key', 'bpsgmap' ); ?></th>
+						<td>
+							<input type="text" value="<?php echo esc_attr( $map_key ); ?>" name="map_key" />
+						</td>
+					</tr>
+
 					<tr valign='top'>
 						<th scope='row'><?php _e( 'Zoom Level', 'bpsgmap' ); ?></th>
 						<td>
@@ -147,7 +144,7 @@ class BPSimpleGoogleMapAdmin {
 					<tr valign='top'>
 						<td colspan='2'>
 							<?php wp_nonce_field( "bpsgmap" ); ?>
-							<input type="submit" name="bpsgmap_save" value="<?php _e( 'Save', 'bpsgmap' ); ?>"/>
+							<input type="submit" name="bpsgmap_save" value="<?php _e( 'Save', 'bpsgmap' ); ?>" class="button button-primary"/>
 
 						</td>
 					</tr>
@@ -159,5 +156,4 @@ class BPSimpleGoogleMapAdmin {
 }
 
 //anonymous object
-new BPSimpleGoogleMapAdmin();
-?>
+new BP_Simple_Google_Map_Admin();
