@@ -143,7 +143,7 @@ class BP_Simple_Google_Map_Admin {
 					</tr>
 					<tr valign='top'>
 						<td colspan='2'>
-							<?php wp_nonce_field( "bpsgmap" ); ?>
+							<?php wp_nonce_field( "bp-simple-google-map" ); ?>
 							<input type="submit" name="bpsgmap_save" value="<?php _e( 'Save', 'bpsgmap' ); ?>" class="button button-primary"/>
 
 						</td>
