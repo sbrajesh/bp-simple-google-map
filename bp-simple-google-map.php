@@ -4,9 +4,10 @@
  * Plugin URI: https://buddydev.com/plugins/bp-simple-google-map/
  * Author: BuddyDev
  * Author URI: https://buddydev.com/
- * Version: 1.0.3
+ * Version: 1.0.4
  * Description: The current version allows adding static google map to BuddyPress Groups. Based on the community feedback, In future version, we may extend it to user maps too.
  */
+
 //singleton class,
 class BP_Simple_Google_Map {
 
