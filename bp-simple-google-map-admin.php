@@ -60,7 +60,7 @@ class BP_Simple_Google_Map_Admin {
 				$settings['map_width'] = $map_width;
 			}
 
-			update_site_option( 'bpgsmap_settings', $settings );
+			update_option( 'bpgsmap_settings', $settings );
 			$this->message = __( 'Updated', 'bp-simple-google-map' );
 		}
 	}
