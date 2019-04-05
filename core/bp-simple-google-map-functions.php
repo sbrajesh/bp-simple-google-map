@@ -59,7 +59,7 @@ function bpsgm_get_group_map_image() {
  * @return mixed
  */
 function bpsgm_get_admin_settings() {
-	$default  = array( 'key' => '', 'map_type' => 'roadmap', 'map_zoom_level' => 6, 'map_height' => 640, 'map_width' => 640 );
+	$default  = array( 'map_key' => '', 'map_type' => 'roadmap', 'map_zoom_level' => 6, 'map_height' => 640, 'map_width' => 640 );
 	$settings = get_option( 'bpgsmap_settings', $default );
 
 	return maybe_unserialize( $settings );
